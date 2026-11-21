@@ -1,49 +1,52 @@
 # Flop Proof Workflow
 
-GitHub Actions workflow yang otomatis membuat proof-of-contribution Flop Labs
-(`flop-proofs/*.json` + `.md`) setiap kali ada push ke branch utama atau
-release baru diterbitkan. Memakai skrip dari skill **Flop Contribution Proof
-Generator** (`scripts/generate_contribution_record.py` dan
+A GitHub Actions workflow that automatically creates a Flop Labs
+proof-of-contribution record (`flop-proofs/*.json` + `.md`) on every push
+to the default branch and on every published release. It uses the scripts
+from the **Flop Contribution Proof Generator** skill
+(`scripts/generate_contribution_record.py` and
 `scripts/verify_contribution.py`).
 
-## Cara pakai
+## Setup
 
-1. Repo ini sudah berisi workflow (`.github/workflows/`) dan folder `scripts/`
-   dari skill — tidak perlu menyalin apa pun.
-2. Buat secret **FLOP_DID**:
-   - Buka repository di GitHub → **Settings** → **Secrets and variables** →
-     **Actions** → **New repository secret**.
+1. This repo already contains the workflow (`.github/workflows/`) and the
+   skill's `scripts/` folder — there is nothing to copy.
+2. Create a secret named **FLOP_DID**:
+   - Open the repository on GitHub → **Settings** → **Secrets and
+     variables** → **Actions** → **New repository secret**.
    - Name: `FLOP_DID`
-   - Value: DID publik Technocore kamu, contoh `did:key:z6Mk...`
-   - DID ini publik by design (bukan private key), tapi disimpan sebagai
-     secret supaya tidak tertulis di file workflow.
-3. Pastikan workflow boleh push: **Settings** → **Actions** → **General** →
-   **Workflow permissions** → pilih **Read and write permissions**.
-   (Workflow ini juga meminta `permissions: contents: write`.)
-4. Push ke `main` atau terbitkan release — workflow akan membuat record,
-   memverifikasinya, lalu meng-commit hasilnya ke folder `flop-proofs/`
-   di branch utama dengan pesan `[skip ci]`.
+   - Value: your public Technocore DID, for example `did:key:z6Mk...`
+   - The DID is public by design (it is not a private key), but it is
+     stored as a secret so it is not written in the workflow file.
+3. Allow the workflow to push: **Settings** → **Actions** → **General** →
+   **Workflow permissions** → select **Read and write permissions**.
+   (The workflow also requests `permissions: contents: write`.)
+4. Push to `main` or publish a release — the workflow generates the
+   record, verifies it, and commits the result to the `flop-proofs/`
+   folder on the default branch with a `[skip ci]` message.
 
-## Yang dihasilkan
+## What it produces
 
-- `flop-proofs/proof-<tag>.json` + `.md` untuk release.
-- `flop-proofs/proof-main-<sha>.json` + `.md` untuk push ke main.
-- Setiap record diverifikasi dulu dengan `verify_contribution.py --json`;
-  kalau INVALID, workflow gagal dan tidak ada file yang di-commit.
-- Ringkasan proof tampil di log Actions dan di halaman ringkasan run.
-  Catatan: GitHub otomatis menyamarkan nilai secret di log, jadi DID akan
-  tampil sebagai `***` di log — nilai aslinya tetap ada di file yang
-  di-commit.
+- `flop-proofs/proof-<tag>.json` + `.md` for releases.
+- `flop-proofs/proof-main-<sha>.json` + `.md` for pushes to main.
+- Every record is verified first with `verify_contribution.py --json`;
+  if it is INVALID, the workflow fails and nothing is committed.
+- A summary of the proof is shown in the Actions log and on the run
+  summary page. Note: GitHub automatically masks secret values in logs,
+  so the DID appears as `***` in the log — the real value is still in
+  the committed file.
 
 ## Troubleshooting
 
-- `FLOP_DID secret is not set` — buat secret seperti langkah 2 di atas.
-- `git push` ditolak (403) — cek Workflow permissions (langkah 3), dan
-  pastikan branch utama tidak dilindungi aturan yang melarang push langsung
-  (branch protection yang mewajibkan pull request akan memblokir push bot).
-- `INVALID` di langkah verify — baca alasan di log; biasanya URL atau
-  deskripsi tidak lolos guardrail (lihat SKILL.md skill ini).
+- `FLOP_DID secret is not set` — create the secret as described in
+  step 2 above.
+- `git push` rejected (403) — check the Workflow permissions (step 3),
+  and make sure the default branch is not protected by a rule that
+  forbids direct pushes (branch protection requiring pull requests will
+  block the bot's push).
+- `INVALID` at the verify step — read the reason in the log; usually
+  the URL or description failed a guardrail (see the skill's SKILL.md).
 
-## Lisensi
+## License
 
-MIT — lihat file `LICENSE`.
+MIT — see the `LICENSE` file.
